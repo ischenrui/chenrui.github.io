@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Monda:300,300italic,400,400italic,700,700italic|黑体:300,300italic,400,400italic,700,700italic|Microsoft YaHei UI:300,300italic,400,400italic,700,700italic|Arial Black:300,300italic,400,400italic,700,700italic|DejaVu Sans Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="图像处理,SVM模型," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/askdog.png?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="1. 问题描述  目的：识别验证码图片中的数字或字母 输入：验证码图片 输出：字符串644J2   2. 解决思路要识别图片中的字符，大致的处理方法一般是先进行图片字符切割，然后对单个字符进行模式匹配，最后把结果合并即可。这里涉及两个问题，一个是图像的处理，一个是字符串的模式匹配，故总体过程可以分为：   验证码图片的预处理 使用SVM模型进行识别字符   具体使用的Python包有：  from">
+<meta name="keywords" content="图像处理,SVM模型">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Python进行验证码识别">
+<meta property="og:url" content="http://icechen.top/2017/10/08/python-CNKIpic-Identify/index.html">
+<meta property="og:site_name" content="River Blog">
+<meta property="og:description" content="1. 问题描述  目的：识别验证码图片中的数字或字母 输入：验证码图片 输出：字符串644J2   2. 解决思路要识别图片中的字符，大致的处理方法一般是先进行图片字符切割，然后对单个字符进行模式匹配，最后把结果合并即可。这里涉及两个问题，一个是图像的处理，一个是字符串的模式匹配，故总体过程可以分为：   验证码图片的预处理 使用SVM模型进行识别字符   具体使用的Python包有：  from">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xjzgw.com1.z0.glb.clouddn.com/3.gif">
+<meta property="og:image" content="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E6%88%AA%E5%9B%BE20171008112119.png">
+<meta property="og:image" content="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E6%88%AA%E5%9B%BE20171008115035.png">
+<meta property="og:image" content="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E6%88%AA%E5%9B%BE20171008115114.png">
+<meta property="og:image" content="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E6%88%AA%E5%9B%BE20171008120349.png">
+<meta property="og:image" content="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E6%88%AA%E5%9B%BE20171008121539.png">
+<meta property="og:image" content="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E6%88%AA%E5%9B%BE20171008135314.png">
+<meta property="og:image" content="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E6%88%AA%E5%9B%BE20171008163837.png">
+<meta property="og:image" content="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E6%88%AA%E5%9B%BE20171008164549.png">
+<meta property="og:image" content="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E6%88%AA%E5%9B%BE20171008165830.png">
+<meta property="og:updated_time" content="2017-10-08T09:48:08.550Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用Python进行验证码识别">
+<meta name="twitter:description" content="1. 问题描述  目的：识别验证码图片中的数字或字母 输入：验证码图片 输出：字符串644J2   2. 解决思路要识别图片中的字符，大致的处理方法一般是先进行图片字符切割，然后对单个字符进行模式匹配，最后把结果合并即可。这里涉及两个问题，一个是图像的处理，一个是字符串的模式匹配，故总体过程可以分为：   验证码图片的预处理 使用SVM模型进行识别字符   具体使用的Python包有：  from">
+<meta name="twitter:image" content="http://7xjzgw.com1.z0.glb.clouddn.com/3.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://icechen.top/2017/10/08/python-CNKIpic-Identify/"/>
+
+
+
+
+
+  <title>使用Python进行验证码识别 | River Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">River Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">向前看，不要向后看</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://icechen.top/2017/10/08/python-CNKIpic-Identify/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DOGDONG">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E5%9B%BE%E7%89%8720170930152824.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="River Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">使用Python进行验证码识别</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-08T17:14:04+08:00">
+                2017-10-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index">
+                    <span itemprop="name">Python</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="1-问题描述"><a href="#1-问题描述" class="headerlink" title="1. 问题描述"></a>1. 问题描述</h1><blockquote>
+<ul>
+<li>目的：识别验证码图片中的数字或字母</li>
+<li>输入：验证码图片<img src="http://7xjzgw.com1.z0.glb.clouddn.com/3.gif" alt="未处理pic"></li>
+<li>输出：字符串644J2</li>
+</ul>
+</blockquote>
+<h1 id="2-解决思路"><a href="#2-解决思路" class="headerlink" title="2. 解决思路"></a>2. 解决思路</h1><p>要识别图片中的字符，大致的处理方法一般是先进行图片字符切割，然后对单个字符进行模式匹配，最后把结果合并即可。这里涉及两个问题，一个是图像的处理，一个是字符串的模式匹配，故总体过程可以分为：</p>
+<blockquote>
+<ol>
+<li>验证码图片的预处理</li>
+<li>使用<a href="https://baike.baidu.com/item/svm/4385807?fr=aladdin" target="_blank" rel="external">SVM模型</a>进行识别字符</li>
+</ol>
+</blockquote>
+<p>具体使用的Python包有：</p>
+<blockquote>
+<p>from PIL import Image</p>
+<p>  #用于图像处理，也可以用OpenCV<br>  from libsvm.python.svm import *</p>
+<p>  #这是一个第三方包，参考<a href="http://www.cnblogs.com/Finley/p/5329417.html" target="_blank" rel="external">LibSVM for Python 使用</a></p>
+</blockquote>
+<h1 id="3-验证码图片预处理"><a href="#3-验证码图片预处理" class="headerlink" title="3. 验证码图片预处理"></a>3. 验证码图片预处理</h1><p>验证码图片的特点是像素低，掺杂干扰线或者斜体、旋转、部分重叠等等因素，可以说是千奇百怪。好在CNKI的验证码比较整齐，比较好处理。通用的办法大致是：</p>
+<blockquote>
+<ol>
+<li>图片灰度化</li>
+<li>图片二值化</li>
+<li>图片去噪</li>
+<li>图片的字符串切割</li>
+<li>字符串图片尺寸标准化</li>
+</ol>
+</blockquote>
+<h2 id="3-1-图片灰度化"><a href="#3-1-图片灰度化" class="headerlink" title="3.1 图片灰度化"></a>3.1 图片灰度化</h2><p><a href="https://baike.baidu.com/item/%E7%81%B0%E5%BA%A6%E5%8C%96/3206969?fr=aladdin" target="_blank" rel="external">图片灰度化</a>是指RGB图片的R=G=B，这样灰度图像每个像素只需一个字节存放灰度值，范围为0-255。大大减少了计算过程的复杂性。<br>在Python中的Image库中调用库函数即可：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">imgry = image.convert(<span class="string">'L'</span>)</div></pre></td></tr></table></figure>
+<h2 id="3-2-图片二值化"><a href="#3-2-图片二值化" class="headerlink" title="3.2 图片二值化"></a>3.2 图片二值化</h2><p><a href="https://baike.baidu.com/item/%E4%BA%8C%E5%80%BC%E5%8C%96" target="_blank" rel="external">图片二值化</a>则是进一步的定义每个像素点为0或者255，即非黑即白，在计算机中便可以用0、1表示，方便计算。<br>在Python中先定义一个灰度转二值的映射table，其中灰度值大于阈(yù)值定义为白(1)，小于定义为黑(0)，然后再调用.point()函数：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_bin_table</span><span class="params">(threshold=<span class="number">80</span>)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line"><span class="string">    获取灰度转二值的映射table</span></div><div class="line"><span class="string">    :param threshold:</span></div><div class="line"><span class="string">    :return:</span></div><div class="line"><span class="string">    """</span></div><div class="line">    table = []</div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">256</span>):</div><div class="line">        <span class="keyword">if</span> i &lt; threshold:</div><div class="line">            table.append(<span class="number">0</span>)</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            table.append(<span class="number">1</span>)</div><div class="line"></div><div class="line">    <span class="keyword">return</span> table</div><div class="line">    </div><div class="line">table = get_bin_table()</div><div class="line">out = imgry.point(table, <span class="string">'1'</span>)  <span class="comment"># 变成二值图片:0表示黑色,1表示白色</span></div></pre></td></tr></table></figure></p>
+<h2 id="3-3-图片去噪"><a href="#3-3-图片去噪" class="headerlink" title="3.3 图片去噪"></a>3.3 图片去噪</h2><p>图片去噪则是为了获得干净的二值图片，尽量减少后期对字符识别的干扰<br>代码：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">sum_9_region</span><span class="params">(img, x, y)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line"><span class="string">    9邻域框,以当前点为中心的田字框,黑点个数,作为移除一些孤立的点的判断依据</span></div><div class="line"><span class="string">    :param img: Image</span></div><div class="line"><span class="string">    :param x:</span></div><div class="line"><span class="string">    :param y:</span></div><div class="line"><span class="string">    :return:</span></div><div class="line"><span class="string">    """</span></div><div class="line">    cur_pixel = img.getpixel((x, y))  <span class="comment"># 当前像素点的值</span></div><div class="line">    width = img.width</div><div class="line">    height = img.height</div><div class="line"></div><div class="line">    <span class="keyword">if</span> cur_pixel == <span class="number">1</span>:  <span class="comment"># 如果当前点为白色区域,则不统计邻域值</span></div><div class="line">        <span class="keyword">return</span> <span class="number">0</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span> y == <span class="number">0</span>:  <span class="comment"># 第一行</span></div><div class="line">        <span class="keyword">if</span> x == <span class="number">0</span>:  <span class="comment"># 左上顶点,4邻域</span></div><div class="line">            <span class="comment"># 中心点旁边3个点</span></div><div class="line">            sum = cur_pixel \</div><div class="line">                  + img.getpixel((x, y + <span class="number">1</span>)) \</div><div class="line">                  + img.getpixel((x + <span class="number">1</span>, y)) \</div><div class="line">                  + img.getpixel((x + <span class="number">1</span>, y + <span class="number">1</span>))</div><div class="line">            <span class="keyword">return</span> <span class="number">4</span> - sum</div><div class="line">        <span class="keyword">elif</span> x == width - <span class="number">1</span>:  <span class="comment"># 右上顶点</span></div><div class="line">            sum = cur_pixel \</div><div class="line">                  + img.getpixel((x, y + <span class="number">1</span>)) \</div><div class="line">                  + img.getpixel((x - <span class="number">1</span>, y)) \</div><div class="line">                  + img.getpixel((x - <span class="number">1</span>, y + <span class="number">1</span>))</div><div class="line"></div><div class="line">            <span class="keyword">return</span> <span class="number">4</span> - sum</div><div class="line">        <span class="keyword">else</span>:  <span class="comment"># 最上非顶点,6邻域</span></div><div class="line">            sum = img.getpixel((x - <span class="number">1</span>, y)) \</div><div class="line">                  + img.getpixel((x - <span class="number">1</span>, y + <span class="number">1</span>)) \</div><div class="line">                  + cur_pixel \</div><div class="line">                  + img.getpixel((x, y + <span class="number">1</span>)) \</div><div class="line">                  + img.getpixel((x + <span class="number">1</span>, y)) \</div><div class="line">                  + img.getpixel((x + <span class="number">1</span>, y + <span class="number">1</span>))</div><div class="line">            <span class="keyword">return</span> <span class="number">6</span> - sum</div><div class="line">    <span class="keyword">elif</span> y == height - <span class="number">1</span>:  <span class="comment"># 最下面一行</span></div><div class="line">        <span class="keyword">if</span> x == <span class="number">0</span>:  <span class="comment"># 左下顶点</span></div><div class="line">            <span class="comment"># 中心点旁边3个点</span></div><div class="line">            sum = cur_pixel \</div><div class="line">                  + img.getpixel((x + <span class="number">1</span>, y)) \</div><div class="line">                  + img.getpixel((x + <span class="number">1</span>, y - <span class="number">1</span>)) \</div><div class="line">                  + img.getpixel((x, y - <span class="number">1</span>))</div><div class="line">            <span class="keyword">return</span> <span class="number">4</span> - sum</div><div class="line">        <span class="keyword">elif</span> x == width - <span class="number">1</span>:  <span class="comment"># 右下顶点</span></div><div class="line">            sum = cur_pixel \</div><div class="line">                  + img.getpixel((x, y - <span class="number">1</span>)) \</div><div class="line">                  + img.getpixel((x - <span class="number">1</span>, y)) \</div><div class="line">                  + img.getpixel((x - <span class="number">1</span>, y - <span class="number">1</span>))</div><div class="line"></div><div class="line">            <span class="keyword">return</span> <span class="number">4</span> - sum</div><div class="line">        <span class="keyword">else</span>:  <span class="comment"># 最下非顶点,6邻域</span></div><div class="line">            sum = cur_pixel \</div><div class="line">                  + img.getpixel((x - <span class="number">1</span>, y)) \</div><div class="line">                  + img.getpixel((x + <span class="number">1</span>, y)) \</div><div class="line">                  + img.getpixel((x, y - <span class="number">1</span>)) \</div><div class="line">                  + img.getpixel((x - <span class="number">1</span>, y - <span class="number">1</span>)) \</div><div class="line">                  + img.getpixel((x + <span class="number">1</span>, y - <span class="number">1</span>))</div><div class="line">            <span class="keyword">return</span> <span class="number">6</span> - sum</div><div class="line">    <span class="keyword">else</span>:  <span class="comment"># y不在边界</span></div><div class="line">        <span class="keyword">if</span> x == <span class="number">0</span>:  <span class="comment"># 左边非顶点</span></div><div class="line">            sum = img.getpixel((x, y - <span class="number">1</span>)) \</div><div class="line">                  + cur_pixel \</div><div class="line">                  + img.getpixel((x, y + <span class="number">1</span>)) \</div><div class="line">                  + img.getpixel((x + <span class="number">1</span>, y - <span class="number">1</span>)) \</div><div class="line">                  + img.getpixel((x + <span class="number">1</span>, y)) \</div><div class="line">                  + img.getpixel((x + <span class="number">1</span>, y + <span class="number">1</span>))</div><div class="line"></div><div class="line">            <span class="keyword">return</span> <span class="number">6</span> - sum</div><div class="line">        <span class="keyword">elif</span> x == width - <span class="number">1</span>:  <span class="comment"># 右边非顶点</span></div><div class="line">            <span class="comment"># print('%s,%s' % (x, y))</span></div><div class="line">            sum = img.getpixel((x, y - <span class="number">1</span>)) \</div><div class="line">                  + cur_pixel \</div><div class="line">                  + img.getpixel((x, y + <span class="number">1</span>)) \</div><div class="line">                  + img.getpixel((x - <span class="number">1</span>, y - <span class="number">1</span>)) \</div><div class="line">                  + img.getpixel((x - <span class="number">1</span>, y)) \</div><div class="line">                  + img.getpixel((x - <span class="number">1</span>, y + <span class="number">1</span>))</div><div class="line"></div><div class="line">            <span class="keyword">return</span> <span class="number">6</span> - sum</div><div class="line">        <span class="keyword">else</span>:  <span class="comment"># 具备9领域条件的</span></div><div class="line">            sum = img.getpixel((x - <span class="number">1</span>, y - <span class="number">1</span>)) \</div><div class="line">                  + img.getpixel((x - <span class="number">1</span>, y)) \</div><div class="line">                  + img.getpixel((x - <span class="number">1</span>, y + <span class="number">1</span>)) \</div><div class="line">                  + img.getpixel((x, y - <span class="number">1</span>)) \</div><div class="line">                  + cur_pixel \</div><div class="line">                  + img.getpixel((x, y + <span class="number">1</span>)) \</div><div class="line">                  + img.getpixel((x + <span class="number">1</span>, y - <span class="number">1</span>)) \</div><div class="line">                  + img.getpixel((x + <span class="number">1</span>, y)) \</div><div class="line">                  + img.getpixel((x + <span class="number">1</span>, y + <span class="number">1</span>))</div><div class="line">            <span class="keyword">return</span> <span class="number">9</span> - sum</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">remove_noise_pixel</span><span class="params">(img, noise_point_list)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line"><span class="string">    根据噪点的位置信息，消除二值图片的黑点噪声</span></div><div class="line"><span class="string">    :type img:Image</span></div><div class="line"><span class="string">    :param img:</span></div><div class="line"><span class="string">    :param noise_point_list:</span></div><div class="line"><span class="string">    :return:</span></div><div class="line"><span class="string">    """</span></div><div class="line">    <span class="keyword">for</span> item <span class="keyword">in</span> noise_point_list:</div><div class="line">        img.putpixel((item[<span class="number">0</span>], item[<span class="number">1</span>]), <span class="number">1</span>)</div><div class="line">        </div><div class="line">        </div><div class="line">noise_point_list = []  <span class="comment"># 通过算法找出噪声点,第一步比较严格,可能会有些误删除的噪点</span></div><div class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> range(out.width):</div><div class="line">        <span class="keyword">for</span> y <span class="keyword">in</span> range(out.height):</div><div class="line">            res_9 = sum_9_region(out, x, y)</div><div class="line">            <span class="keyword">if</span> (<span class="number">0</span> &lt; res_9 &lt; <span class="number">3</span>) <span class="keyword">and</span> out.getpixel((x, y)) == <span class="number">0</span>:  <span class="comment"># 找到孤立点</span></div><div class="line">                pos = (x, y)  <span class="comment">#</span></div><div class="line">                noise_point_list.append(pos)</div><div class="line">remove_noise_pixel(out, noise_point_list)</div></pre></td></tr></table></figure></p>
+<p>处理后的效果：<br><img src="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E6%88%AA%E5%9B%BE20171008112119.png" alt="clean_pic"></p>
+<p>可以看到效果不错，接下来的字符串切割算法是重点。</p>
+<h2 id="3-4-图片的字符串切割"><a href="#3-4-图片的字符串切割" class="headerlink" title="3.4 图片的字符串切割"></a>3.4 图片的字符串切割</h2><p>关于图片切割的算法有非常多，比如投影法，水滴法等等，没有仔细去了解，这里只介绍我选择的方法。<br>首先看了大多采用的方法是竖直统计黑色像素点，当像数量小于某个值(0,1,2…)的时候定义为切割线，这种方法很可能产生错误的切割，字符串的粘连、特殊字符串(M、H)都可能误切。</p>
+<blockquote>
+<p>于是首先想到检测最左、最右像素确定含有字符的区域的宽度（高度都是恒定）<br>可以得到长度len,然后len/5即为每块儿字符的宽度<br>加上一个偏移量x=3(大小根据效果调整)就可以得到扫描区域:</p>
+</blockquote>
+<p><img src="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E6%88%AA%E5%9B%BE20171008115035.png" alt="saomiao_pic"></p>
+<p>然后对每个扫描区域进行竖直统计黑色像素点，数量最小的一行即为切割线：</p>
+<p><img src="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E6%88%AA%E5%9B%BE20171008115114.png" alt="saomiaoqie_pic"></p>
+<p>后来实际跑下来正确率应该在95%以上(没有具体统计过)，已经可以接受，但是观察了错误的情况发现还有可以改进的地方。之前存在的不足是大部分是由于字体为斜体，竖直统计会有一定误差，如下图中，竖直统计像素点会让V的左边与2的右边重合统计，导致最终切割错误。<br><img src="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E6%88%AA%E5%9B%BE20171008120349.png" alt="V2"></p>
+<p>针对上述问题，很自然想到一个处理的办法就是斜着切，具体斜多少度，怎么斜则是需要考虑的，最终结合验证码图片的特点选择了如下方案：</p>
+<blockquote>
+<p>对每个扫描区域，每竖直4个像素则向左偏移一个x值，形成一个较为合理的“斜切”方案。如图所示：</p>
+</blockquote>
+<p><img src="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E6%88%AA%E5%9B%BE20171008121539.png" alt="qiege_pic"></p>
+<p>最后跑下来进一步提高了切割的正确率，实现代码如下：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_crop_imgs</span><span class="params">(image)</span>:</span></div><div class="line">    width, height = image.size</div><div class="line">    startLine = <span class="number">0</span></div><div class="line">    endLine = width - <span class="number">1</span></div><div class="line"></div><div class="line">    <span class="comment"># 确定竖直起始位置（如果噪点在边缘未消去可能会影响结果）</span></div><div class="line">    black_num = <span class="number">0</span></div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, width):</div><div class="line">        <span class="keyword">if</span> (black_num != <span class="number">0</span>):</div><div class="line">            <span class="keyword">break</span></div><div class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">0</span>, height):</div><div class="line">            <span class="keyword">if</span> (image.getpixel((i, j)) == <span class="number">0</span>):</div><div class="line">                startLine = i</div><div class="line">                black_num += <span class="number">1</span></div><div class="line">    <span class="comment"># print("startLine:",startLine)</span></div><div class="line">    black_num = <span class="number">0</span></div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(width - <span class="number">1</span>, <span class="number">-1</span>, <span class="number">-1</span>):</div><div class="line">        <span class="keyword">if</span> (black_num != <span class="number">0</span>):</div><div class="line">            <span class="keyword">break</span></div><div class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">0</span>, height):</div><div class="line">            <span class="keyword">if</span> (image.getpixel((i, j)) == <span class="number">0</span>):</div><div class="line">                endLine = i + <span class="number">1</span></div><div class="line">                black_num += <span class="number">1</span></div><div class="line">    <span class="comment"># print("endLine",endLine)</span></div><div class="line"></div><div class="line">    <span class="comment"># len:区间的长度,offset:偏移量（这里取整丧失了精度，在后面做处理减少误差</span></div><div class="line">    len = int((endLine - startLine) / <span class="number">5</span>)</div><div class="line">    offset = <span class="number">7</span></div><div class="line">    <span class="comment"># print ("len:",int(len))</span></div><div class="line"></div><div class="line"></div><div class="line">    <span class="comment"># 字符的切割位置,五个数对应四个split_x</span></div><div class="line">    split_x = [<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>]</div><div class="line"></div><div class="line">    <span class="comment"># 求第一个切割线</span></div><div class="line">    min_num = <span class="number">5</span>  <span class="comment"># 默认分界线像素不超过五</span></div><div class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> range(startLine + len - <span class="number">1</span>, startLine + len - <span class="number">1</span> + offset):</div><div class="line">        black_num = <span class="number">0</span></div><div class="line">        <span class="keyword">for</span> y <span class="keyword">in</span> range(<span class="number">5</span>, <span class="number">9</span>):</div><div class="line">            <span class="keyword">if</span> (image.getpixel((x, y)) == <span class="number">0</span>):</div><div class="line">                black_num += <span class="number">1</span></div><div class="line">        x -= <span class="number">1</span></div><div class="line">        <span class="keyword">for</span> y <span class="keyword">in</span> range(<span class="number">9</span>, <span class="number">13</span>):</div><div class="line">            <span class="keyword">if</span> (image.getpixel((x, y)) == <span class="number">0</span>):</div><div class="line">                black_num += <span class="number">1</span></div><div class="line">        x -= <span class="number">1</span></div><div class="line">        <span class="keyword">for</span> y <span class="keyword">in</span> range(<span class="number">13</span>, <span class="number">19</span>):</div><div class="line">            <span class="keyword">if</span> (image.getpixel((x, y)) == <span class="number">0</span>):</div><div class="line">                black_num += <span class="number">1</span></div><div class="line">        x += <span class="number">2</span></div><div class="line">        <span class="keyword">if</span> (black_num &lt; min_num):</div><div class="line">            min_num = black_num</div><div class="line">            split_x[<span class="number">0</span>] = x</div><div class="line">    <span class="comment"># print ("diyige:",split_x[0])</span></div><div class="line"></div><div class="line">    <span class="comment"># 求第二个切割线</span></div><div class="line">    min_num = <span class="number">5</span>  <span class="comment"># 默认分界线像素不超过五</span></div><div class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> range(startLine + <span class="number">2</span> * len - <span class="number">3</span>, startLine + <span class="number">2</span> * len + offset):</div><div class="line">        black_num = <span class="number">0</span></div><div class="line">        <span class="keyword">for</span> y <span class="keyword">in</span> range(<span class="number">5</span>, <span class="number">9</span>):</div><div class="line">            <span class="keyword">if</span> (image.getpixel((x, y)) == <span class="number">0</span>):</div><div class="line">                black_num += <span class="number">1</span></div><div class="line">        x -= <span class="number">1</span></div><div class="line">        <span class="keyword">for</span> y <span class="keyword">in</span> range(<span class="number">9</span>, <span class="number">13</span>):</div><div class="line">            <span class="keyword">if</span> (image.getpixel((x, y)) == <span class="number">0</span>):</div><div class="line">                black_num += <span class="number">1</span></div><div class="line">        x -= <span class="number">1</span></div><div class="line">        <span class="keyword">for</span> y <span class="keyword">in</span> range(<span class="number">13</span>, <span class="number">19</span>):</div><div class="line">            <span class="keyword">if</span> (image.getpixel((x, y)) == <span class="number">0</span>):</div><div class="line">                black_num += <span class="number">1</span></div><div class="line">        x += <span class="number">2</span></div><div class="line">        <span class="keyword">if</span> (black_num &lt; min_num):</div><div class="line">            min_num = black_num</div><div class="line">            <span class="comment"># print (min_num)</span></div><div class="line">            split_x[<span class="number">1</span>] = x</div><div class="line">    <span class="comment"># print ("diyige:",split_x[1])</span></div><div class="line"></div><div class="line">    <span class="comment"># 求第四个切割线</span></div><div class="line">    min_num = <span class="number">5</span>  <span class="comment"># 默认分界线像素不超过五</span></div><div class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> range(endLine - len - <span class="number">2</span> + offset, endLine - len - <span class="number">2</span>, <span class="number">-1</span>):</div><div class="line">        black_num = <span class="number">0</span></div><div class="line">        <span class="keyword">for</span> y <span class="keyword">in</span> range(<span class="number">5</span>, <span class="number">9</span>):</div><div class="line">            <span class="keyword">if</span> (image.getpixel((x, y)) == <span class="number">0</span>):</div><div class="line">                black_num += <span class="number">1</span></div><div class="line">        x -= <span class="number">1</span></div><div class="line">        <span class="keyword">for</span> y <span class="keyword">in</span> range(<span class="number">9</span>, <span class="number">13</span>):</div><div class="line">            <span class="keyword">if</span> (image.getpixel((x, y)) == <span class="number">0</span>):</div><div class="line">                black_num += <span class="number">1</span></div><div class="line">        x -= <span class="number">1</span></div><div class="line">        <span class="keyword">for</span> y <span class="keyword">in</span> range(<span class="number">13</span>, <span class="number">19</span>):</div><div class="line">            <span class="keyword">if</span> (image.getpixel((x, y)) == <span class="number">0</span>):</div><div class="line">                black_num += <span class="number">1</span></div><div class="line">        x += <span class="number">2</span></div><div class="line">        <span class="keyword">if</span> (black_num &lt; min_num):</div><div class="line">            min_num = black_num</div><div class="line">            split_x[<span class="number">3</span>] = x - <span class="number">1</span></div><div class="line">    <span class="comment"># print("diyige:", split_x[3])</span></div><div class="line"></div><div class="line">    <span class="comment"># 求第三个切割线</span></div><div class="line">    min_num = <span class="number">5</span>  <span class="comment"># 默认分界线像素不超过五</span></div><div class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> range(endLine - <span class="number">2</span> * len - <span class="number">3</span> + offset, endLine - <span class="number">2</span> * len - <span class="number">5</span>, <span class="number">-1</span>):</div><div class="line">        black_num = <span class="number">0</span></div><div class="line">        <span class="keyword">for</span> y <span class="keyword">in</span> range(<span class="number">5</span>, <span class="number">9</span>):</div><div class="line">            <span class="keyword">if</span> (image.getpixel((x, y)) == <span class="number">0</span>):</div><div class="line">                black_num += <span class="number">1</span></div><div class="line">        x -= <span class="number">1</span></div><div class="line">        <span class="keyword">for</span> y <span class="keyword">in</span> range(<span class="number">9</span>, <span class="number">13</span>):</div><div class="line">            <span class="keyword">if</span> (image.getpixel((x, y)) == <span class="number">0</span>):</div><div class="line">                black_num += <span class="number">1</span></div><div class="line">        x -= <span class="number">1</span></div><div class="line">        <span class="keyword">for</span> y <span class="keyword">in</span> range(<span class="number">13</span>, <span class="number">19</span>):</div><div class="line">            <span class="keyword">if</span> (image.getpixel((x, y)) == <span class="number">0</span>):</div><div class="line">                black_num += <span class="number">1</span></div><div class="line">        x += <span class="number">2</span></div><div class="line">        <span class="keyword">if</span> (black_num &lt; min_num):</div><div class="line">            min_num = black_num</div><div class="line">            split_x[<span class="number">2</span>] = x - <span class="number">1</span></div><div class="line">    <span class="comment"># print("diyige:", split_x[2])</span></div><div class="line"></div><div class="line">    child_img_list = []</div><div class="line">    child_img_list.append(image.crop([startLine, <span class="number">5</span>, split_x[<span class="number">0</span>], <span class="number">17</span>]))</div><div class="line">    child_img_list.append(image.crop([split_x[<span class="number">0</span>], <span class="number">5</span>, split_x[<span class="number">1</span>], <span class="number">17</span>]))</div><div class="line">    child_img_list.append(image.crop([split_x[<span class="number">1</span>], <span class="number">5</span>, split_x[<span class="number">2</span>], <span class="number">17</span>]))</div><div class="line">    child_img_list.append(image.crop([split_x[<span class="number">2</span>], <span class="number">5</span>, split_x[<span class="number">3</span>], <span class="number">17</span>]))</div><div class="line">    child_img_list.append(image.crop([split_x[<span class="number">3</span>], <span class="number">5</span>, endLine, <span class="number">17</span>]))</div><div class="line">    <span class="keyword">return</span> child_img_list</div></pre></td></tr></table></figure></p>
+<h2 id="3-5-字符串图片尺寸标准化"><a href="#3-5-字符串图片尺寸标准化" class="headerlink" title="3.5 字符串图片尺寸标准化"></a>3.5 字符串图片尺寸标准化</h2><p>字符串图片尺寸标准化是为了后面识别定义向量作准备，由于3.4切割的子图可能大小不一(一般数字较窄，字母较宽)，所以这里统一的尺寸定为13*12px，不足补白，标准化之后的子图效果：</p>
+<p><img src="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E6%88%AA%E5%9B%BE20171008135314.png" alt="child_pic"></p>
+<p>代码：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">resize_imgs</span><span class="params">(image_list)</span>:</span></div><div class="line">	<span class="string">"""</span></div><div class="line"><span class="string">    重新统一设置图片尺寸，</span></div><div class="line"><span class="string">    """</span></div><div class="line">    newImg_list = []</div><div class="line">    <span class="keyword">for</span> im <span class="keyword">in</span> image_list:</div><div class="line">        newImg = Image.new(<span class="string">"1"</span>, (<span class="number">13</span>, <span class="number">12</span>), <span class="number">1</span>)</div><div class="line">        newImg.paste(im)</div><div class="line">        newImg_list.append(newImg)</div><div class="line">    <span class="keyword">return</span> newImg_list</div></pre></td></tr></table></figure></p>
+<p>需要说明一下的是，Image中本来有resize函数，但是不好用就换了个方法写，实现了想要的效果即可。</p>
+<h1 id="4-使用SVM模型进行识别字符"><a href="#4-使用SVM模型进行识别字符" class="headerlink" title="4. 使用SVM模型进行识别字符"></a>4. 使用SVM模型进行识别字符</h1><p><a href="https://baike.baidu.com/item/svm/4385807?fr=aladdin" target="_blank" rel="external">SVM模型</a>使用第三方包，参考<a href="http://www.cnblogs.com/Finley/p/5329417.html" target="_blank" rel="external">LibSVM for Python 使用</a>，处理过程为：</p>
+<blockquote>
+<ol>
+<li>确定子图的特征值的定义</li>
+<li>手动标记图标，训练SVM模型</li>
+<li>使用训练好的SVM模型识别验证码图片</li>
+</ol>
+</blockquote>
+<p>这一阶段的工作相对之前图片切割而言较为枯燥，调用SVM去识别也是使用性质，较为简单。</p>
+<h2 id="4-1-确定子图的特征值的定义"><a href="#4-1-确定子图的特征值的定义" class="headerlink" title="4.1 确定子图的特征值的定义"></a>4.1 确定子图的特征值的定义</h2><p>子图特征值定义可以每个像素点作为一个特征值，但明显复杂度过高，参考教程定义每行每列的黑色像素点数和作为特征值，13*12即25个特征值。<br>（这里我考虑过是否有必要和切割的时候一样，斜着统计数量，但应该差不不大，毕竟只是作为特征值反映图片的特征，同一类型的图片竖直统计也能反映图片特征）<br>如下图，特征值为：1:1 2:4 3:4 4:4 5:3 6:2 7:2 8:3 9:4 10:2 11:5 12:2 13:2 14:7 15:5 16:4 17:4 18:3 19:7 20:4 21:0 22:0 23:0 24:0 25:0<br><img src="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E6%88%AA%E5%9B%BE20171008163837.png" alt="child0_pic"></p>
+<p>特征值定义代码如下：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_feature</span><span class="params">(img)</span>:</span></div><div class="line">    <span class="string">"""</span></div><div class="line"><span class="string">    获取指定图片的特征值,</span></div><div class="line"><span class="string">    1. 按照每排的像素点,高度为12,则有12个维度,然后为13列,总共25个维度</span></div><div class="line"><span class="string">    :param img_path:</span></div><div class="line"><span class="string">    :return:一个维度为25的列表</span></div><div class="line"><span class="string">    """</span></div><div class="line">    width, height = img.size</div><div class="line"></div><div class="line">    pixel_cnt_list = []</div><div class="line">    <span class="keyword">for</span> y <span class="keyword">in</span> range(height):</div><div class="line">        pix_cnt_x = <span class="number">0</span></div><div class="line">        <span class="keyword">for</span> x <span class="keyword">in</span> range(width):</div><div class="line">            <span class="keyword">if</span> img.getpixel((x, y)) == <span class="number">0</span>:  <span class="comment"># 黑色点</span></div><div class="line">                pix_cnt_x += <span class="number">1</span></div><div class="line"></div><div class="line">        pixel_cnt_list.append(pix_cnt_x)</div><div class="line"></div><div class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> range(width):</div><div class="line">        pix_cnt_y = <span class="number">0</span></div><div class="line">        <span class="keyword">for</span> y <span class="keyword">in</span> range(height):</div><div class="line">            <span class="keyword">if</span> img.getpixel((x, y)) == <span class="number">0</span>:  <span class="comment"># 黑色点</span></div><div class="line">                pix_cnt_y += <span class="number">1</span></div><div class="line"></div><div class="line">        pixel_cnt_list.append(pix_cnt_y)</div><div class="line"></div><div class="line">    <span class="keyword">return</span> pixel_cnt_list</div></pre></td></tr></table></figure></p>
+<h2 id="4-2-手动标记图标，训练SVM模型"><a href="#4-2-手动标记图标，训练SVM模型" class="headerlink" title="4.2 手动标记图标，训练SVM模型"></a>4.2 手动标记图标，训练SVM模型</h2><p>这里我花了接近一个小时将切割的图片分类，差不多每个类型一百个样本，不得不说是一个苦力活，考验眼力=。=，将分好类的子图放入对应的文件夹，发现实际字母数字组合只会选用偶数位。<br><img src="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E6%88%AA%E5%9B%BE20171008164549.png" alt="分类_pic"></p>
+<p>之后对应的计算每个图片的特征值，放入SVM模型中生成训练集即可：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">pic_name = [<span class="string">'0'</span>,<span class="string">'2'</span>,<span class="string">'4'</span>,<span class="string">'6'</span>,<span class="string">'8'</span>,<span class="string">'B'</span>,<span class="string">'D'</span>,<span class="string">'F'</span>,<span class="string">'H'</span>,<span class="string">'J'</span>,<span class="string">'L'</span>,<span class="string">'N'</span>,<span class="string">'P'</span>,<span class="string">'R'</span>,<span class="string">'T'</span>,<span class="string">'V'</span>,<span class="string">'X'</span>,<span class="string">'Z'</span>]</div><div class="line"></div><div class="line">file = open(<span class="string">'pic_train.txt'</span>,<span class="string">'a'</span>)</div><div class="line"></div><div class="line"><span class="keyword">for</span> name <span class="keyword">in</span> pic_name:</div><div class="line">    <span class="keyword">for</span> num <span class="keyword">in</span> range(<span class="number">1</span>, <span class="number">101</span>):</div><div class="line">        file.write(str(ord(name)))</div><div class="line">        im = Image.open(name+<span class="string">"//"</span>+name+<span class="string">" ("</span> + str(num) + <span class="string">").png"</span>)</div><div class="line">        feature = get_feature(im)</div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, <span class="number">25</span>):</div><div class="line">            file.write(<span class="string">" "</span> + str(i+<span class="number">1</span>) + <span class="string">":"</span> + str(feature[i]))</div><div class="line">        file.write(<span class="string">"\n"</span>)</div><div class="line">file.close()</div><div class="line"></div><div class="line">y, x = svm_read_problem(<span class="string">'pic_train.txt'</span>)</div><div class="line">model = svm_train(y, x )</div><div class="line">svm_save_model(<span class="string">'model_file'</span>, model)</div></pre></td></tr></table></figure>
+<p>这里需要说明一下的是，由于模型行标记只能使用数字，故将所有字符转为对应的ASCII码标记，识别完成后再转回对应的UTF-8编码即可。</p>
+<h2 id="4-3-使用训练好的SVM模型识别验证码图片"><a href="#4-3-使用训练好的SVM模型识别验证码图片" class="headerlink" title="4.3 使用训练好的SVM模型识别验证码图片"></a>4.3 使用训练好的SVM模型识别验证码图片</h2><p>主函数代码如下：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">pic2str</span><span class="params">(image)</span>:</span></div><div class="line">    pic_str = <span class="string">""</span></div><div class="line"></div><div class="line">    <span class="comment">#图片初步处理，转换为二值图</span></div><div class="line">    bin_clear_img = get_clear_bin_image(image)</div><div class="line">    <span class="comment"># 切割图片为单个字符，保存在内存中（5个child）</span></div><div class="line">    child_img_list = get_crop_imgs(bin_clear_img)</div><div class="line">    <span class="comment">#标准化子图的大小</span></div><div class="line">    child_img_list = resize_imgs(child_img_list)</div><div class="line"></div><div class="line"></div><div class="line">    <span class="comment"># 加载SVM模型进行预测</span></div><div class="line">    model = svm_load_model(<span class="string">'data//model_file'</span>)</div><div class="line"></div><div class="line">    <span class="keyword">for</span> child_img <span class="keyword">in</span> child_img_list:</div><div class="line">        img_feature_list = get_feature(child_img)  <span class="comment"># 使用特征算法，将图像进行特征化降维</span></div><div class="line"></div><div class="line">        yt = [<span class="number">0</span>]  <span class="comment"># 测试数据标签</span></div><div class="line">        <span class="comment"># xt = [&#123;1: 1, 2: 1&#125;]  # 测试数据输入向量</span></div><div class="line">        xt = convert_feature_to_vector(img_feature_list)  <span class="comment"># 将所有的特征转化为标准化的SVM单行的特征向量</span></div><div class="line">        p_label, p_acc, p_val = svm_predict(yt, xt, model)</div><div class="line">        pic_str += (chr(int(p_label[<span class="number">0</span>])))  <span class="comment"># 将识别结果合并起来</span></div><div class="line"></div><div class="line">    <span class="keyword">return</span> pic_str</div></pre></td></tr></table></figure></p>
+<p>最后结果如图：</p>
+<p><img src="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E6%88%AA%E5%9B%BE20171008165830.png" alt="end"></p>
+<p>经过扩大训练集到每个字符1000个样本，识别1000张验证码图片的正确率为98.6%，应该说比较满意。</p>
+<blockquote>
+<p>分析错误情况：</p>
+<ol>
+<li>噪点没去除干净导致len计算错误</li>
+<li>字符组合情况较为极端每个字符组距过大导致切割错误,如<em>488ZH</em>,Z与H的扫描区域会偏右，导致H被切分</li>
+<li>SVM模型识别错误</li>
+</ol>
+</blockquote>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://www.cnblogs.com/beer/p/5672678.html" target="_blank" rel="external">字符型图片验证码识别完整过程及Python实现</a></li>
+<li><a href="http://www.cnblogs.com/Finley/p/5329417.html" target="_blank" rel="external">LibSVM for Python 使用</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>请我喝杯水（°Д°）Ъ</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E5%9B%BE%E7%89%8720170930194516.png" alt="DOGDONG 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E5%9B%BE%E7%89%8720170930194509.jpg" alt="DOGDONG 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/图像处理/" rel="tag"># 图像处理</a>
+          
+            <a href="/tags/SVM模型/" rel="tag"># SVM模型</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/06/1709summary/" rel="next" title="17年9月总结">
+                <i class="fa fa-chevron-left"></i> 17年9月总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/09/Machinelearning-knn/" rel="prev" title="k-近邻算法(kNN)">
+                k-近邻算法(kNN) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          
+            <img class="site-author-image" itemprop="image"
+              src="http://7xjzgw.com1.z0.glb.clouddn.com/TIM%E5%9B%BE%E7%89%8720170930152824.png"
+              alt="DOGDONG" />
+          
+            <p class="site-author-name" itemprop="name">DOGDONG</p>
+            <p class="site-description motion-element" itemprop="description">Remembering that you will die, that everything ends, and that happy comes not in denying this but in living with it.</p>
+        </div>
+
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+            
+              <a href="/archives/">
+            
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ischenrui" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>GitHub</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://user.qzone.qq.com/593318783" target="_blank" title="QQ空间">
+                  
+                    <i class="fa fa-fw fa-globe"></i>QQ空间</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-问题描述"><span class="nav-text">1. 问题描述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-解决思路"><span class="nav-text">2. 解决思路</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-验证码图片预处理"><span class="nav-text">3. 验证码图片预处理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-图片灰度化"><span class="nav-text">3.1 图片灰度化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-图片二值化"><span class="nav-text">3.2 图片二值化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3-图片去噪"><span class="nav-text">3.3 图片去噪</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-图片的字符串切割"><span class="nav-text">3.4 图片的字符串切割</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-5-字符串图片尺寸标准化"><span class="nav-text">3.5 字符串图片尺寸标准化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-使用SVM模型进行识别字符"><span class="nav-text">4. 使用SVM模型进行识别字符</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-确定子图的特征值的定义"><span class="nav-text">4.1 确定子图的特征值的定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-手动标记图标，训练SVM模型"><span class="nav-text">4.2 手动标记图标，训练SVM模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-3-使用训练好的SVM模型识别验证码图片"><span class="nav-text">4.3 使用训练好的SVM模型识别验证码图片</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DOGDONG</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共19.2k字</span>
+</div>
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
